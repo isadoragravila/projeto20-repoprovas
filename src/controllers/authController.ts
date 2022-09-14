@@ -11,5 +11,9 @@ export async function registerUser(req: Request, res: Response) {
 }
 
 export async function loginUser(req: Request, res: Response) {
-    res.status(200).send("login")
+    const { email, password }: ILoginData =  req.body;
+
+    const result = await authService.loginUser(email, password);
+
+    res.status(200).send(result);
 }
