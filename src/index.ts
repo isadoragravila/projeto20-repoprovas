@@ -15,5 +15,4 @@ app.use(express.json());
 app.use(router);
 app.use(errorHandler);
 
-const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`Servidor funcionando na porta ${PORT}`));
+export default app;
