@@ -5,7 +5,7 @@ export type IExamData = Omit<Tests, 'id'>;
 export interface IExamSchema {
     name: string;
     pdfUrl: string;
-    category: string;
-    discipline: string;
-    teacher: string;
+    categoryId: number;
+    disciplineId: number;
+    teacherId: number;
 }
