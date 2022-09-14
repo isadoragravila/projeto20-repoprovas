@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest -i --no-cache",
+    "test": "jest -i --no-cache --verbose",
     "build": "tsc && npx prisma generate && npx prisma migrate deploy",
     "start": "node dist/index.js",
     "dev": "nodemon src/server.ts"

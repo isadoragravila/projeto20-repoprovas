@@ -12,21 +12,21 @@ describe('POST /sign-up', () => {
         expect(firstTry.status).toBe(422);
 
         const secondTry = await supertest(app).post('/sign-up').send({ 
-            email: "teste",
+            email: "test",
             password: "1234567890",
             confirmPassword: "1234567890"
         });
         expect(secondTry.status).toBe(422);
 
         const thirdTry = await supertest(app).post('/sign-up').send({ 
-            email: "teste@email.com",
+            email: "test@email.com",
             password: "123456",
             confirmPassword: "1234567890"
         });
         expect(thirdTry.status).toBe(422);
 
         const forthTry = await supertest(app).post('/sign-up').send({ 
-            email: "teste@email.com",
+            email: "test@email.com",
             password: "1234567890",
             confirmPassword: "0987654321"
         });
@@ -35,13 +35,13 @@ describe('POST /sign-up', () => {
 
     it('returns 409 for using an existing email in the database', async () => {
         await supertest(app).post('/sign-up').send({
-            email: "teste@email.com",
+            email: "test@email.com",
             password: "1234567890",
             confirmPassword: "1234567890"
         });
 
         const result = await supertest(app).post('/sign-up').send({ 
-            email: "teste@email.com",
+            email: "test@email.com",
             password: "1234567890",
             confirmPassword: "1234567890"
         });
@@ -50,7 +50,7 @@ describe('POST /sign-up', () => {
 
     it('returns 201 for valid input and right insert in the database', async () => {
         const body = {
-            email: "teste@email.com",
+            email: "test@email.com",
             password: "1234567890",
             confirmPassword: "1234567890"
         }
