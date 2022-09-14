@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 export async function registerUser(registerData: IRegisterData) {
     const { email, password, confirmPassword } = registerData;
 
-    if (password !== confirmPassword) throw {code: "conflict_error", message: "Confirm password should be equal to password" };
+    if (password !== confirmPassword) throw { code: "conflict_error", message: "Confirm password should be equal to password" };
 
     const existingEmail = await checkEmail(email);
     if (existingEmail) throw { code: "conflict_error", message: "This email is already registered in the database" };
@@ -29,7 +29,7 @@ function encryptPassword(password: string) {
 
 export async function loginUser(email: string, password: string) {
     const user = await checkEmailAndPassword(email, password);
-    
+
     const token = generateToken(user.id);
 
     return { token };
@@ -38,7 +38,7 @@ export async function loginUser(email: string, password: string) {
 async function checkEmailAndPassword(email: string, password: string) {
     const user = await checkEmail(email);
     if (!user) throw { code: "unauthorized_error", message: "Wrong email or password!" };
-    
+
     const encryptedPassword = user.password;
 
     if (!bcrypt.compareSync(password, encryptedPassword)) throw { code: "unauthorized_error", message: "Wrong email or password!" };
@@ -51,6 +51,13 @@ function generateToken(id: number) {
     const SECRET = process.env.JWT_SECRET || "";
     const EXPIRES_IN = Number(process.env.TOKEN_EXPIRES_IN);
     const options = { expiresIn: EXPIRES_IN };
-    
+
     return jwt.sign(data, SECRET, options);
+}
+
+export async function findUserById(id: number) {
+    const user = await authRepository.findById(id);
+    if (!user) throw { code: "notfound_error", message: "User not found" };
+
+    return user;
 }
