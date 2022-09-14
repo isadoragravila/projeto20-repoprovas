@@ -9,6 +9,13 @@ export async function findTeacherDisciplineId(teacherId: number, disciplineId: n
     return result?.id;
 }
 
+export async function findCategoryById(id: number) {
+    const result = await prisma.categories.findFirst({
+        where: { id }
+    });
+    return result;
+}
+
 export async function insert(exam: IExamData) {
     await prisma.tests.create({
         data: exam
