@@ -1,18 +1,16 @@
 import app from '../src/index';
 import supertest from 'supertest';
 import { prisma } from '../src/databases/database';
+import { registerFactory } from './factories/registerFactory';
 
-beforeEach(async () => {
+beforeAll(async () => {
     await prisma.$executeRaw`TRUNCATE users RESTART IDENTITY;`;
+
+    await supertest(app).post('/sign-up').send(registerFactory());
 });
 
 describe('POST /sign-in', () => {
     it('returns 422 for invalid input', async () => {
-        await supertest(app).post('/sign-up').send({
-            email: "test@email.com",
-            password: "1234567890",
-            confirmPassword: "1234567890"
-        });
         const firstTry = await supertest(app).post('/sign-in').send({});
         expect(firstTry.status).toBe(422);
 
@@ -30,12 +28,6 @@ describe('POST /sign-in', () => {
     });
 
     it('returns 401 for wrong credentials', async () => {
-        await supertest(app).post('/sign-up').send({
-            email: "test@email.com",
-            password: "1234567890",
-            confirmPassword: "1234567890"
-        });
-
         const firstTry = await supertest(app).post('/sign-in').send({ 
             email: "wrongemail@email.com",
             password: "1234567890"
@@ -50,12 +42,6 @@ describe('POST /sign-in', () => {
     });
 
     it('returns 200 for valid input and right credentials', async () => {
-        await supertest(app).post('/sign-up').send({
-            email: "test@email.com",
-            password: "1234567890",
-            confirmPassword: "1234567890"
-        });
-
         const result = await supertest(app).post('/sign-in').send({ 
             email: "test@email.com",
             password: "1234567890"

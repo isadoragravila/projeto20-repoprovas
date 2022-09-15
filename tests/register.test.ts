@@ -1,6 +1,7 @@
 import app from '../src/index';
 import supertest from 'supertest';
 import { prisma } from '../src/databases/database';
+import { registerFactory } from './factories/registerFactory';
 
 beforeEach(async () => {
     await prisma.$executeRaw`TRUNCATE users RESTART IDENTITY;`;
@@ -34,27 +35,17 @@ describe('POST /sign-up', () => {
     });
 
     it('returns 409 for using an existing email in the database', async () => {
-        await supertest(app).post('/sign-up').send({
-            email: "test@email.com",
-            password: "1234567890",
-            confirmPassword: "1234567890"
-        });
+        const body = registerFactory();
 
-        const result = await supertest(app).post('/sign-up').send({ 
-            email: "test@email.com",
-            password: "1234567890",
-            confirmPassword: "1234567890"
-        });
+        await supertest(app).post('/sign-up').send(body);
+
+        const result = await supertest(app).post('/sign-up').send(body);
         expect(result.status).toBe(409);
     });
 
     it('returns 201 for valid input and right insert in the database', async () => {
-        const body = {
-            email: "test@email.com",
-            password: "1234567890",
-            confirmPassword: "1234567890"
-        }
-
+        const body = registerFactory();
+        
         const result = await supertest(app).post('/sign-up').send(body);
 
         const createdUser = await prisma.users.findUnique({ 

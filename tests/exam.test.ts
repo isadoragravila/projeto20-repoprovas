@@ -1,26 +1,24 @@
 import app from '../src/index';
 import supertest from 'supertest';
 import { prisma } from '../src/databases/database';
+import { tokenFactory } from './factories/tokenFactory';
+import { registerFactory } from './factories/registerFactory';
 
-let token = '';
+// let token = '';
 
 beforeAll(async () => {
     await prisma.$executeRaw`TRUNCATE users RESTART IDENTITY;`;
 
     await prisma.$executeRaw`TRUNCATE tests RESTART IDENTITY;`;
 
-    await supertest(app).post('/sign-up').send({
-        email: "test@email.com",
-        password: "1234567890",
-        confirmPassword: "1234567890"
-    });
+    await supertest(app).post('/sign-up').send(registerFactory());
 
-    const login = await supertest(app).post('/sign-in').send({
-        email: "test@email.com",
-        password: "1234567890"
-    });
+    // const login = await supertest(app).post('/sign-in').send({
+    //     email: "test@email.com",
+    //     password: "1234567890"
+    // });
 
-    token = login.body.token;
+    // token = login.body.token;
 });
 
 describe('POST /exam', () => {
@@ -33,6 +31,8 @@ describe('POST /exam', () => {
     });
 
     it('returns 422 for invalid input', async () => {
+        const token = await tokenFactory();
+
         const firstTry = await supertest(app).post('/exam').set('Authorization', `Bearer ${token}`).send({});
         expect(firstTry.status).toBe(422);
 
@@ -50,6 +50,8 @@ describe('POST /exam', () => {
     });
 
     it('returns 404 for invalid ids (category, teacher, discipline)', async () => {
+        const token = await tokenFactory();
+        
         const firstTry = await supertest(app)
         .post('/exam')
         .set('Authorization', `Bearer ${token}`)
@@ -76,6 +78,8 @@ describe('POST /exam', () => {
     });
 
     it('returns 201 for valid token, valid input and right insert in the database', async () => {
+        const token = await tokenFactory();
+        
         const body = {
             name: "Test name",
             pdfUrl: "https://www.globo.com/",
