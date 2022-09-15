@@ -28,7 +28,40 @@ async function checkCategoryId(categoryId: number) {
 }
 
 export async function getByDisciplines() {
-    const result = await examRepository.getByDisciplines();
+    //const result = await examRepository.getByDisciplines();
+
+    const categories = await examRepository.getCategories();
+
+    const terms = await examRepository.getTerms();
+
+    const result = terms.map(term => {
+        return {
+            id: term.id,
+            number: term.number,
+            disciplines: term.disciplines.map(disc => {
+                return {
+                    id: disc.id,
+                    name: disc.name,
+                    categories: categories.map(cat => {
+                        return {
+                            id: cat.id,
+                            name: cat.name,
+                            tests: cat.tests.map(test => {
+                                if (test.teachersDiscipline.disciplineId === disc.id) {
+                                    return {
+                                        id: test.id,
+                                        name: test.name,
+                                        pdfUrl: test.pdfUrl,
+                                        teacher: test.teachersDiscipline.teacher.name
+                                    }
+                                }
+                            }).filter(item => item)
+                        }
+                   })
+                }
+            })
+        }
+    })
 
     return result;
 }

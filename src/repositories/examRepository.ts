@@ -58,6 +58,47 @@ export async function getByDisciplines() {
     return result;
 }
 
+export async function getCategories() {
+    return await prisma.categories.findMany({
+        select: {
+            id: true,
+            name: true,
+            tests: {
+                select: {
+                    id: true,
+                    name: true,
+                    pdfUrl: true,
+                    teachersDiscipline: {
+                        select: {
+                            disciplineId: true, 
+                            teacher: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+}
+
+export async function getTerms() {
+    return await prisma.terms.findMany({
+        select: {
+            id: true,
+            number: true,
+            disciplines: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
+        }
+    })
+}
+
 export async function getByTeachers() {
     const result = await prisma.teachers.findMany({
         select: {
