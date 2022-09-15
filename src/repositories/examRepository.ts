@@ -21,3 +21,67 @@ export async function insert(exam: IExamData) {
         data: exam
     });
 }
+
+export async function getByDisciplines() {
+    const result = await prisma.terms.findMany(
+        {
+            select: {
+                id: true,
+                number: true,
+                disciplines: {
+                    select: {
+                        id: true,
+                        name: true,
+                        teachersDisciplines: {
+                            select: {
+                                teacher: {
+                                    select: {
+                                        name: true
+                                    }
+                                },
+                                tests: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        pdfUrl: true,
+                                        category: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    );
+
+    return result;
+}
+
+export async function getByTeachers() {
+    const result = await prisma.teachers.findMany({
+        select: {
+            id: true,
+            name: true,
+            teachersDisciplines: {
+                select: {
+                    discipline: {
+                        select: {
+                            name: true
+                        }
+                    },
+                    tests: {
+                        select: {
+                            id: true,
+                            name: true,
+                            pdfUrl: true,
+                            category: true
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    return result;
+}

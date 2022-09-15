@@ -26,3 +26,15 @@ async function checkCategoryId(categoryId: number) {
 
     if (!result) throw { code: "notfound_error", message: "Category not found" };
 }
+
+export async function getByDisciplines() {
+    const result = await examRepository.getByDisciplines();
+
+    return result;
+}
+
+export async function getByTeachers() {
+    const result = await examRepository.getByTeachers();
+
+    return result;
+}

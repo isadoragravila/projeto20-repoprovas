@@ -21,23 +21,23 @@ beforeAll(async () => {
     // token = login.body.token;
 });
 
-describe('POST /exam', () => {
+describe('POST /exams', () => {
     it('returns 401 for invalid or missing token', async () => {
-        const firstTry = await supertest(app).post('/exam').send({});
+        const firstTry = await supertest(app).post('/exams').send({});
         expect(firstTry.status).toBe(401);
 
-        const secondTry = await supertest(app).post('/exam').set('Authorization', "Bearer invalidToken").send({});
+        const secondTry = await supertest(app).post('/exams').set('Authorization', "Bearer invalidToken").send({});
         expect(secondTry.status).toBe(401);
     });
 
     it('returns 422 for invalid input', async () => {
         const token = await tokenFactory();
 
-        const firstTry = await supertest(app).post('/exam').set('Authorization', `Bearer ${token}`).send({});
+        const firstTry = await supertest(app).post('/exams').set('Authorization', `Bearer ${token}`).send({});
         expect(firstTry.status).toBe(422);
 
         const secondTry = await supertest(app)
-        .post('/exam')
+        .post('/exams')
         .set('Authorization', `Bearer ${token}`)
         .send({
             name: "Test name",
@@ -53,7 +53,7 @@ describe('POST /exam', () => {
         const token = await tokenFactory();
         
         const firstTry = await supertest(app)
-        .post('/exam')
+        .post('/exams')
         .set('Authorization', `Bearer ${token}`)
         .send({
             name: "Test name",
@@ -65,7 +65,7 @@ describe('POST /exam', () => {
         expect(firstTry.status).toBe(404);
 
         const secondTry = await supertest(app)
-        .post('/exam')
+        .post('/exams')
         .set('Authorization', `Bearer ${token}`)
         .send({
             name: "Test name",
@@ -88,7 +88,7 @@ describe('POST /exam', () => {
             teacherId: 1
         }
         const result = await supertest(app)
-        .post('/exam')
+        .post('/exams')
         .set('Authorization', `Bearer ${token}`)
         .send(body);
 
