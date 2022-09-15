@@ -36,21 +36,21 @@ export async function getByDisciplines() {
 
     const result = terms.map(term => {
         return {
-            id: term.id,
-            number: term.number,
+            termId: term.id,
+            termName: term.number,
             disciplines: term.disciplines.map(disc => {
                 return {
-                    id: disc.id,
-                    name: disc.name,
+                    disciplineId: disc.id,
+                    disciplineName: disc.name,
                     categories: categories.map(cat => {
                         return {
-                            id: cat.id,
-                            name: cat.name,
+                            categoryId: cat.id,
+                            categoryName: cat.name,
                             tests: cat.tests.map(test => {
                                 if (test.teachersDiscipline.disciplineId === disc.id) {
                                     return {
-                                        id: test.id,
-                                        name: test.name,
+                                        testId: test.id,
+                                        testName: test.name,
                                         pdfUrl: test.pdfUrl,
                                         teacher: test.teachersDiscipline.teacher.name
                                     }
@@ -67,7 +67,34 @@ export async function getByDisciplines() {
 }
 
 export async function getByTeachers() {
-    const result = await examRepository.getByTeachers();
+    //const result = await examRepository.getByTeachers();
+
+    const categories = await examRepository.getCategories();
+
+    const teachers = await examRepository.getTeachers();
+
+    const result = teachers.map(teacher => {
+        return {
+            teacherId: teacher.id,
+            teacherName: teacher.name,
+            categories: categories.map(cat => {
+                return {
+                    categoryId: cat.id,
+                    categoryName: cat.name,
+                    tests: cat.tests.map(test => {
+                        if (test.teachersDiscipline.teacherId === teacher.id) {
+                            return {
+                                testId: test.id,
+                                testName: test.name,
+                                pdfUrl: test.pdfUrl,
+                                discipline: test.teachersDiscipline.discipline.name
+                            }
+                        }
+                    }).filter(item => item)
+                }
+           })
+        }
+    })
 
     return result;
 }

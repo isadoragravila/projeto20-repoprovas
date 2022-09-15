@@ -71,7 +71,13 @@ export async function getCategories() {
                     teachersDiscipline: {
                         select: {
                             disciplineId: true, 
+                            teacherId: true,
                             teacher: {
+                                select: {
+                                    name: true
+                                }
+                            },
+                            discipline: {
                                 select: {
                                     name: true
                                 }
@@ -126,3 +132,12 @@ export async function getByTeachers() {
 
     return result;
 }
+
+export async function getTeachers() {
+    return await prisma.teachers.findMany({
+        select: {
+            id: true,
+            name: true
+        }
+    })
+};
