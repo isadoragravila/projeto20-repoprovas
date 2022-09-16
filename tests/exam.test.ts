@@ -1,24 +1,13 @@
 import app from '../src/index';
 import supertest from 'supertest';
 import { prisma } from '../src/databases/database';
-import { tokenFactory } from './factories/tokenFactory';
-import { registerFactory } from './factories/registerFactory';
+import { registerBody } from './factories/userFactory';
+import { examBody, wrongFormatExam } from './factories/examFactory';
 
-// let token = '';
-
-beforeAll(async () => {
+beforeEach(async () => {
     await prisma.$executeRaw`TRUNCATE users RESTART IDENTITY;`;
 
     await prisma.$executeRaw`TRUNCATE tests RESTART IDENTITY;`;
-
-    await supertest(app).post('/sign-up').send(registerFactory());
-
-    // const login = await supertest(app).post('/sign-in').send({
-    //     email: "test@email.com",
-    //     password: "1234567890"
-    // });
-
-    // token = login.body.token;
 });
 
 describe('POST /exams', () => {
@@ -31,33 +20,44 @@ describe('POST /exams', () => {
     });
 
     it('returns 422 for invalid input', async () => {
-        const token = await tokenFactory();
+        const body = await registerBody();
+        await supertest(app).post('/sign-up').send(body);
+
+        const login = await supertest(app).post('/sign-in').send({ 
+            email: body.email,
+            password: body.password
+        });
+
+        const token = login.body.token;
 
         const firstTry = await supertest(app).post('/exams').set('Authorization', `Bearer ${token}`).send({});
         expect(firstTry.status).toBe(422);
 
-        const secondTry = await supertest(app)
-        .post('/exams')
-        .set('Authorization', `Bearer ${token}`)
-        .send({
-            name: "Test name",
-            pdfUrl: "https://www.globo.com/",
-            categoryId: "Category",
-            disciplineId: "Discipline",
-            teacherId: "Teacher"
-        });
+        const exam = await wrongFormatExam();
+
+        const secondTry = await supertest(app).post('/exams').set('Authorization', `Bearer ${token}`).send(exam);
         expect(secondTry.status).toBe(422);
     });
 
     it('returns 404 for invalid ids (category, teacher, discipline)', async () => {
-        const token = await tokenFactory();
+        const body = await registerBody();
+        await supertest(app).post('/sign-up').send(body);
+
+        const login = await supertest(app).post('/sign-in').send({ 
+            email: body.email,
+            password: body.password
+        });
+
+        const token = login.body.token;
+
+        const exam = await examBody();
         
         const firstTry = await supertest(app)
         .post('/exams')
         .set('Authorization', `Bearer ${token}`)
         .send({
-            name: "Test name",
-            pdfUrl: "https://www.globo.com/",
+            name: exam.name,
+            pdfUrl: exam.pdfUrl,
             categoryId: 10,
             disciplineId: 3,
             teacherId: 1
@@ -68,8 +68,8 @@ describe('POST /exams', () => {
         .post('/exams')
         .set('Authorization', `Bearer ${token}`)
         .send({
-            name: "Test name",
-            pdfUrl: "https://www.globo.com/",
+            name: exam.name,
+            pdfUrl: exam.pdfUrl,
             categoryId: 1,
             disciplineId: 5,
             teacherId: 1
@@ -78,24 +78,24 @@ describe('POST /exams', () => {
     });
 
     it('returns 201 for valid token, valid input and right insert in the database', async () => {
-        const token = await tokenFactory();
+        const body = await registerBody();
+        await supertest(app).post('/sign-up').send(body);
+
+        const login = await supertest(app).post('/sign-in').send({ 
+            email: body.email,
+            password: body.password
+        });
+
+        const token = login.body.token;
         
-        const body = {
-            name: "Test name",
-            pdfUrl: "https://www.globo.com/",
-            categoryId: 1,
-            disciplineId: 1,
-            teacherId: 1
-        }
-        const result = await supertest(app)
-        .post('/exams')
-        .set('Authorization', `Bearer ${token}`)
-        .send(body);
+        const exam = await examBody();
+
+        const result = await supertest(app).post('/exams').set('Authorization', `Bearer ${token}`).send(exam);
 
         expect(result.status).toBe(201);
 
-        const createdExam = await prisma.tests.findFirst({
-            where: { name: body.name }
+        const createdExam = await prisma.tests.findUnique({
+            where: { id: result.body.id }
         });
 
         expect(createdExam).not.toBeNull;

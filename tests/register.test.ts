@@ -1,7 +1,7 @@
 import app from '../src/index';
 import supertest from 'supertest';
 import { prisma } from '../src/databases/database';
-import { registerFactory } from './factories/registerFactory';
+import { registerBody, rightFormatCredential, wrongFormatCredential } from './factories/userFactory';
 
 beforeEach(async () => {
     await prisma.$executeRaw`TRUNCATE users RESTART IDENTITY;`;
@@ -9,42 +9,46 @@ beforeEach(async () => {
 
 describe('POST /sign-up', () => {
     it('returns 422 for invalid input', async () => {
+        const rightData = await rightFormatCredential();
+        const wrongData = await wrongFormatCredential();
+
         const firstTry = await supertest(app).post('/sign-up').send({});
         expect(firstTry.status).toBe(422);
 
         const secondTry = await supertest(app).post('/sign-up').send({ 
-            email: "test",
-            password: "1234567890",
-            confirmPassword: "1234567890"
+            email: wrongData.email,
+            password: rightData.password,
+            confirmPassword: rightData.password
         });
         expect(secondTry.status).toBe(422);
 
         const thirdTry = await supertest(app).post('/sign-up').send({ 
-            email: "test@email.com",
-            password: "123456",
-            confirmPassword: "1234567890"
+            email: rightData.email,
+            password: wrongData.password,
+            confirmPassword: rightData.password
         });
         expect(thirdTry.status).toBe(422);
 
         const forthTry = await supertest(app).post('/sign-up').send({ 
-            email: "test@email.com",
-            password: "1234567890",
-            confirmPassword: "0987654321"
+            email: rightData.email,
+            password: rightData.password,
+            confirmPassword: wrongData.password
         });
         expect(forthTry.status).toBe(422);
     });
 
     it('returns 409 for using an existing email in the database', async () => {
-        const body = registerFactory();
+        const body = await registerBody();
 
         await supertest(app).post('/sign-up').send(body);
 
         const result = await supertest(app).post('/sign-up').send(body);
+
         expect(result.status).toBe(409);
     });
 
     it('returns 201 for valid input and right insert in the database', async () => {
-        const body = registerFactory();
+        const body = await registerBody();
         
         const result = await supertest(app).post('/sign-up').send(body);
 
