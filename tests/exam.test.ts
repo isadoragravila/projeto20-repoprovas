@@ -58,8 +58,8 @@ describe('POST /exams', () => {
         .send({
             name: exam.name,
             pdfUrl: exam.pdfUrl,
-            categoryId: 10,
-            disciplineId: 3,
+            categoryId: 100,
+            disciplineId: 1,
             teacherId: 1
         });
         expect(firstTry.status).toBe(404);
@@ -71,11 +71,49 @@ describe('POST /exams', () => {
             name: exam.name,
             pdfUrl: exam.pdfUrl,
             categoryId: 1,
-            disciplineId: 5,
+            disciplineId: 100,
             teacherId: 1
         });
         expect(secondTry.status).toBe(404);
+
+        const thirdTry = await supertest(app)
+        .post('/exams')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+            name: exam.name,
+            pdfUrl: exam.pdfUrl,
+            categoryId: 1,
+            disciplineId: 1,
+            teacherId: 100
+        });
+        expect(thirdTry.status).toBe(404);
     });
+
+    it('returns 409 for non-relational teacher and discipline', async () =>{
+        const body = await registerBody();
+        await supertest(app).post('/sign-up').send(body);
+
+        const login = await supertest(app).post('/sign-in').send({ 
+            email: body.email,
+            password: body.password
+        });
+
+        const token = login.body.token;
+
+        const exam = await examBody();
+        
+        const result = await supertest(app)
+        .post('/exams')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+            name: exam.name,
+            pdfUrl: exam.pdfUrl,
+            categoryId: 1,
+            disciplineId: 4,
+            teacherId: 1
+        });
+        expect(result.status).toBe(409);
+    })
 
     it('returns 201 for valid token, valid input and right insert in the database', async () => {
         const body = await registerBody();
