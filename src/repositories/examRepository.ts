@@ -17,7 +17,7 @@ export async function findCategoryById(id: number) {
 }
 
 export async function insert(exam: IExamData) {
-    await prisma.tests.create({
+    return await prisma.tests.create({
         data: exam
     });
 }

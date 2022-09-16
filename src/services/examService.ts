@@ -8,9 +8,9 @@ export async function insertExam(examData: IExamSchema) {
 
     const teacherDisciplineId = await findTeacherDisciplineId(teacherId, disciplineId);
 
-    await examRepository.insert({ name, pdfUrl, categoryId, teacherDisciplineId });
+    const exam = await examRepository.insert({ name, pdfUrl, categoryId, teacherDisciplineId });
 
-    return "Exam successfully registered!"
+    return exam;
 }
 
 async function findTeacherDisciplineId(teacherId:number, disciplineId: number) {
