@@ -21,6 +21,7 @@ Sistema de compartilhamento de provas entre estudantes
 - Node.js
 - TypeScript
 - PostgreSQL
+- Prisma
 - JWTs
 
 ***
@@ -67,11 +68,11 @@ Sistema de compartilhamento de provas entre estudantes
   - **Request:** body no formato:
 ```json
 {
-  "name": "Projeto JavaScript",
-  "pdfUrl": "https://www.site.com/",
-  "categoryId": 1,
-  "disciplineId": 2,
-  "teacherId": 1
+  "name": "Projeto JavaScript", //string
+  "pdfUrl": "https://www.site.com/", //string (url)
+  "categoryId": 1, //number (categorias já cadastradas no banco de dados: 1, 2, 3)
+  "disciplineId": 2, //number (disciplinas já cadastradas no banco de dados: 1, 2, 3, 4, 5, 6)
+  "teacherId": 1 //number (professores já cadastrados no banco de dados: 1, 2)
 }
 ```
 - **Retorno:**
@@ -91,3 +92,169 @@ Sistema de compartilhamento de provas entre estudantes
     - 404: usuário não encontrado (verificação do token) ou categoria, disciplina ou professor não encontrados;
     - 409: professor não está relacionado com a disciplina;
     - 422: erro no formato do body.
+
+### Rota: GET ```/exams/disciplines```
+  - **Função**: Busca provas agrupadas por disciplinas (autenticada);
+  - **Headers:** ```{ "Authorization": "Bearer $token" }```
+- **Retorno:**
+```json
+[
+  {
+    "termId": 1,
+    "termName": 1,
+    "disciplines": [
+      {
+        "disciplineId": 1,
+        "disciplineName": "HTML e CSS",
+        "categories": [
+          {
+            "categoryId": 1,
+            "categoryName": "Projeto",
+            "tests": [
+              {
+                "testId": 1,
+                "testName": "Projeto HTML",
+                "pdfUrl": "https://www.site.com/",
+                "teacher": "Diego Pinho"
+              }
+            ]
+          },
+          {
+            "categoryId": 2,
+            "categoryName": "Prática",
+            "tests": [
+              {
+                "testId": 2,
+                "testName": "Pratica HTML",
+                "pdfUrl": "https://www.site.com/",
+                "teacher": "Diego Pinho"
+              }
+            ]
+          },
+          {
+            "categoryId": 3,
+            "categoryName": "Recuperação",
+            "tests": []
+          }
+        ]
+      },
+      {
+        "disciplineId": 4,
+        "disciplineName": "Humildade",
+        "categories": [
+          {
+            "categoryId": 1,
+            "categoryName": "Projeto",
+            "tests": []
+          },
+          {
+            "categoryId": 2,
+            "categoryName": "Prática",
+            "tests": []
+          },
+          {
+            "categoryId": 3,
+            "categoryName": "Recuperação",
+            "tests": [
+              {
+                "testId": 3,
+                "testName": "Recuperação Humildade",
+                "pdfUrl": "https://www.site.com/",
+                "teacher": "Bruna Hamori"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "termId": 2,
+    "termName": 2,
+    "disciplines": []
+  }
+]
+```
+  - **StatusCodes**:
+    - 200: sucesso;
+    - 401: token inválido;
+    - 404: usuário não encontrado (verificação do token).
+
+### Rota: GET ```/exams/teachers```
+  - **Função**: Busca provas agrupadas por professores (autenticada);
+  - **Headers:** ```{ "Authorization": "Bearer $token" }```
+- **Retorno:**
+```json
+[
+  {
+    "teacherId": 1,
+    "teacherName": "Diego Pinho",
+    "categories": [
+      {
+        "categoryId": 1,
+        "categoryName": "Projeto",
+        "tests": [
+          {
+            "testId": 1,
+            "testName": "Projeto HTML",
+            "pdfUrl": "https://www.site.com/",
+            "discipline": "HTML e CSS"
+          }
+        ]
+      },
+      {
+        "categoryId": 2,
+        "categoryName": "Prática",
+        "tests": [
+          {
+            "testId": 2,
+            "testName": "Pratica HTML",
+            "pdfUrl": "https://www.site.com/",
+            "discipline": "HTML e CSS"
+          }
+        ]
+      },
+      {
+        "categoryId": 3,
+        "categoryName": "Recuperação",
+        "tests": []
+      }
+    ]
+  },
+  {
+    "teacherId": 2,
+    "teacherName": "Bruna Hamori",
+    "categories": [
+      {
+        "categoryId": 1,
+        "categoryName": "Projeto",
+        "tests": []
+      },
+      {
+        "categoryId": 2,
+        "categoryName": "Prática",
+        "tests": []
+      },
+      {
+        "categoryId": 3,
+        "categoryName": "Recuperação",
+        "tests": [
+          {
+            "testId": 3,
+            "testName": "Recuperação Humildade",
+            "pdfUrl": "https://www.site.com/",
+            "discipline": "Humildade"
+          }
+        ]
+      }
+    ]
+  }
+]
+```
+  - **StatusCodes**:
+    - 200: sucesso;
+    - 401: token inválido;
+    - 404: usuário não encontrado (verificação do token).
+
+***
+
