@@ -140,6 +140,72 @@ describe('POST /exams', () => {
     });
 });
 
+describe ('GET /exams/disciplines', () => {
+    it('returns 401 for invalid or missing token', async () => {
+        const firstTry = await supertest(app).get('/exams/disciplines');
+        expect(firstTry.status).toBe(401);
+
+        const secondTry = await supertest(app).get('/exams/disciplines').set('Authorization', 'Bearer invalidToken');
+        expect(secondTry.status).toBe(401);
+    });
+
+    it('returns 200 and right format body', async () => {
+        const body = await registerBody();
+        await supertest(app).post('/sign-up').send(body);
+
+        const login = await supertest(app).post('/sign-in').send({ 
+            email: body.email,
+            password: body.password
+        });
+        const token = login.body.token;
+
+        const exam = await examBody();
+
+        await supertest(app).post('/exams').set('Authorization', `Bearer ${token}`).send(exam);
+
+        const result = await supertest(app).get('/exams/disciplines').set('Authorization', `Bearer ${token}`);
+
+        const countData = result.body.length;
+
+        expect(result.status).toBe(200);
+        expect(result.body).toBeInstanceOf(Array);
+        expect(countData).toBeGreaterThan(0);
+    })
+});
+
+describe ('GET /exams/teachers', () => {
+    it('returns 401 for invalid or missing token', async () => {
+        const firstTry = await supertest(app).get('/exams/teachers');
+        expect(firstTry.status).toBe(401);
+
+        const secondTry = await supertest(app).get('/exams/teachers').set('Authorization', "Bearer invalidToken");
+        expect(secondTry.status).toBe(401);
+    });
+    
+    it('returns 200 and right format body', async () => {
+        const body = await registerBody();
+        await supertest(app).post('/sign-up').send(body);
+
+        const login = await supertest(app).post('/sign-in').send({ 
+            email: body.email,
+            password: body.password
+        });
+        const token = login.body.token;
+
+        const exam = await examBody();
+
+        await supertest(app).post('/exams').set('Authorization', `Bearer ${token}`).send(exam);
+
+        const result = await supertest(app).get('/exams/teachers').set('Authorization', `Bearer ${token}`);
+
+        const countData = result.body.length;
+
+        expect(result.status).toBe(200);
+        expect(result.body).toBeInstanceOf(Array);
+        expect(countData).toBeGreaterThan(0);
+    })
+})
+
 afterAll(async () => {
     await prisma.$disconnect();
 });

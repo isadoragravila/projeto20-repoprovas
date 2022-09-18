@@ -34,42 +34,6 @@ export async function insert(exam: IExamData) {
     });
 }
 
-export async function getByDisciplines() {
-    const result = await prisma.terms.findMany(
-        {
-            select: {
-                id: true,
-                number: true,
-                disciplines: {
-                    select: {
-                        id: true,
-                        name: true,
-                        teachersDisciplines: {
-                            select: {
-                                teacher: {
-                                    select: {
-                                        name: true
-                                    }
-                                },
-                                tests: {
-                                    select: {
-                                        id: true,
-                                        name: true,
-                                        pdfUrl: true,
-                                        category: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    );
-
-    return result;
-}
-
 export async function getCategories() {
     return await prisma.categories.findMany({
         select: {
@@ -117,39 +81,6 @@ export async function getTerms() {
     })
 }
 
-export async function getByTeachers() {
-    const result = await prisma.teachers.findMany({
-        select: {
-            id: true,
-            name: true,
-            teachersDisciplines: {
-                select: {
-                    discipline: {
-                        select: {
-                            name: true
-                        }
-                    },
-                    tests: {
-                        select: {
-                            id: true,
-                            name: true,
-                            pdfUrl: true,
-                            category: true
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    return result;
-}
-
 export async function getTeachers() {
-    return await prisma.teachers.findMany({
-        select: {
-            id: true,
-            name: true
-        }
-    })
+    return await prisma.teachers.findMany();
 };
