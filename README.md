@@ -258,3 +258,52 @@ Sistema de compartilhamento de provas entre estudantes
 
 ***
 
+## 🏁 Rodando a aplicação
+
+### **1. Localmente** (ambiente de desenvolvimento)
+
+Certifique-se que você tenha a última versão estável do [Node.js](https://nodejs.org/en/download/) e [npm](https://www.npmjs.com/) rodando localmente.
+
+Primeiro, faça o clone desse repositório em sua máquina:
+
+```
+git clone https://github.com/isadoragravila/projeto20-repoprovas.git
+```
+
+Depois, dentro da pasta, rode o seguinte comando para instalar as dependências:
+
+```
+npm install
+```
+
+Então, configure seu arquivo .env:
+```
+PORT= porta em que a aplicação irá rodar no servidor
+DATABASE_URL= postgres://YourUser:YourPassword@YourHost:5432/YourDatabase
+JWT_SECRET= palavra segura para encriptação dos tokens
+TOKEN_EXPIRES_IN= número equivalente ao tempo de expiração dos tokens (sugestão: 2592000 (1 mês em segundos))
+```
+
+Depois, dentro da pasta, rode o seguinte comando para migrar o banco de dados:
+
+```
+npx prisma migrate dev
+```
+
+Finalizado o processo, para inicializar o servidor, rode:
+```
+npm run dev
+```
+
+Para a execução de testes, rode:
+```
+npm test
+```
+:stop_sign: Certifique-se de utilizar um arquivo .env.test e um banco de dados de testes para não comprometer o seu banco de dados original
+
+### **2. Deploy**
+
+Link do deploy no Heroku :
+```
+https://projeto-repoprovas-backend.herokuapp.com/
+```
